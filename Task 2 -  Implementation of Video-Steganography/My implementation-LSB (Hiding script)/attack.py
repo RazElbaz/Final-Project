@@ -1,4 +1,6 @@
 def attack():
-    print("You fell into an attack. One of the bits in the seron contains malicious code")
+    print("***********************************************************************************\n"
+          "You fell for an attack, this script was hidden in one of the bits in your video!\n"
+          "***********************************************************************************\n")
 
 attack()

@@ -1,38 +1,13 @@
 # I used the following website: https://medium.com/@vedanshvijay/steganography-5d9d8a557587
+# and https://baghlafturki.medium.com/steganography-how-to-hide-python-scripts-in-images-69f6308a45b
 # Installing and Importing required modules:
 from PIL import Image
-from stegano import lsb
-from os.path import isfile, join
-import time
 import cv2
-import PIL
 import numpy as np
 import math
 import os
 import shutil
-from subprocess import Popen
-
-import runpy
 from subprocess import call, STDOUT
-
-
-# Defining the String Split function🪓
-# Now that we have all the extracted frames, we can divide the strings into small chunks and hide each chunk of the message inside a frame.
-def split_string(split_str, count=10):
-    per_c = math.ceil(len(split_str) / count)
-    c_cout = 0
-    out_str = ''
-    split_list = []
-    for s in split_str:
-        out_str += s
-        c_cout += 1
-        if c_cout == per_c:
-            split_list.append(out_str)  # The message is divided into substrings
-            out_str = ''
-            c_cout = 0
-    if c_cout != 0:
-        split_list.append(out_str)
-    return split_list
 
 
 # Defining frame extraction function🎞
@@ -187,7 +162,7 @@ def find_capacity(img, code):
     return medium_size, secret_size
 
 
-def encode_string(input_string, root="./temp/"):
+def encode_string():
     encode("attack.py")  # Embedded the splitted string into each frame.
     print("The message is stored in the out.mp4 file")
 
@@ -198,7 +173,6 @@ def encode(secret_file):
     img = import_image(img_file)
     # find the size of secret file
     medium_size, secret_size = find_capacity(img, secret)
-    print("raz  " + str(secret_size))
     # if secret file is too large for the image or user wants to exit
     if secret_size >= medium_size:
         print('secret file is large for this image, please get a larger image')
@@ -223,7 +197,7 @@ def encode(secret_file):
     # save
     im = Image.fromarray(img)
     im.save("./temp/{}.png".format(0))
-    print('Done, "0.png" should be in your directory')
+    print('Done, the image "0.png" contains the script encoded in the video')
 
 
 def decode_capacity(img_copy):
@@ -268,10 +242,7 @@ def decode_secret(flat_medium, sec_ext, length):
             file.write(chr(int(byte, 2)))
             if pix_idx - 8 == length:
                 break
-    try:
-        os.system('python secret.py')
-    except:
-        print("bad")
+
 
 
 def decode(stego_img, sec_ext):
@@ -291,7 +262,11 @@ def decode(stego_img, sec_ext):
     # extract secret file from stego image
     decode_secret(img, sec_ext, secret_size)
 
-    print(f'Decoding completed, "secretPNG.{sec_ext}" should be in your directory')
+    print(f'Decoding completed, "secret.{sec_ext}" should be in your directory')
+    try:
+        os.system('python secret.py')
+    except:
+        print("error")
 
 
 # This function would decode the hidden message by extracting frames from the video
@@ -301,7 +276,7 @@ def decode_string(video):
         # Find a message in an image (with the LSB technique).
         decode("./temp/0.png", 'py')
     except:
-        print("bad")
+        print("error")
     clean_temp()
 
 
@@ -314,12 +289,11 @@ def clean_temp(path="./temp"):
 
 # This function would extraxt audio from the video so as to stitch them back later.
 def input_main(f_name):
-    input_string = input("Enter the message :")  # To collect the message
     frame_extraction(f_name)
     # The call function would be used to extract the audio and then stitch it again properly with the frames extracted.
     call(["ffmpeg", "-i", f_name, "-q:a", "0", "-map", "a", "temp/audio.mp3", "-y"], stdout=open(os.devnull, "w"),
          stderr=STDOUT)
-    encode_string(input_string)
+    encode_string()
     # Stitching together the frames🖼 and the audio🔊
     # using ffmpeg to stitch together all our frames with a hidden message to form a video and then lay out the audio:
     call(["ffmpeg", "-i", "temp/%d.png", "-vcodec", "png", "temp/out.mp4", "-y"], stdout=open(os.devnull, "w"),
