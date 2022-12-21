@@ -19,7 +19,7 @@ def frames_to_video():
     # ignore .DS_Store
     files = [f for f in os.listdir(path) if not f.startswith('.')]
     files.sort(key=lambda x: int(x[0:-4]))
-    print(files)
+    # print(files)
 
     for f in files:
         filename = join(path, f)
@@ -51,24 +51,18 @@ def video_to_frames(input_video):
         os.makedirs("temp")
 
     # get file path for video
-    # input_video = input("Enter Video Name To Encryption: ")
-    cap = cv2.VideoCapture(input_video)  # default fps: 30
+    cap = cv2.VideoCapture(input_video)
     fps = cap.get(cv2.CAP_PROP_FPS)
     print("fps = " + str(fps))
-
-    # change bak to parent directory
-
     path_to_save = './temp'
 
     current_frame = 0
     while (True):
-
         # capture each frame
         ret, frame = cap.read()
         # stop loop when video ends
         if not ret:
             break
-
         # Save frame as a png file
         name = str(current_frame) + '.png'
 
@@ -81,7 +75,7 @@ def video_to_frames(input_video):
     # release capture
     cap.release()
     cv2.destroyAllWindows()
-    print('Frames saved!')
+    print("[INFO] temp directory is created")
     # Extract audio from video
     video = moviepy.editor.VideoFileClip(input_video)
     audio = video.audio
@@ -94,7 +88,7 @@ class LSB():
     def encode_image(self, img, msg):
         length = len(msg)
         if length > 255:
-            print("text too long! (don't exeed 255 characters)")
+            print("text too long! (don't exceed 255 characters)")
             return False
         encoded = img.copy()
         width, height = img.size
@@ -129,9 +123,6 @@ class LSB():
                 elif index <= length:
                     msg += chr(b)
                 index += 1
-        lsb_decoded_image_file = "lsb_" + original_image_file
-        # img.save(lsb_decoded_image_file)
-        ##print("Decoded image was saved!")
         return msg
 
 
@@ -153,9 +144,9 @@ def input_main(f_name, input_string):
     img_name = "10.png"
     if not os.path.isfile(img_name):
         raise Exception("Image not found")
-    print("Chose 10.png to encode")
-
+    print("[INFO] Chose 10.png  to encode")
     img = LSB().encode_image(Image.open(img_name), input_string)
+    print("[INFO] The message is stored in the final.mp4 file")
     img.save(img_name)
     os.chdir("..")
     # build encoded video
@@ -172,7 +163,7 @@ def decode_string(f_name):
     for i in range(len(os.listdir(path))):
         # filename = os.path.join(path, i)
         # print(filename)
-        hidden_text = LSB().decode_image(Image.open("./temp/frame{}.png".format(i)))
+        hidden_text = LSB().decode_image(Image.open("./temp/{}.png".format(i)))
         if hidden_text != "ÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅÅ":
             print(f'-->Message Received: {hidden_text}')
 
