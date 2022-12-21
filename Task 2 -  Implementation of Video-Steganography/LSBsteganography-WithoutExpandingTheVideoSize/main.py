@@ -32,7 +32,7 @@ def frames_to_video():
         # append img to frames array
         frames.append(img)
 
-    fps = 30
+    fps = 25
     output = cv2.VideoWriter('output.mp4', cv2.VideoWriter_fourcc(*'mp4v'), fps, size)
     # writing image to video
     for img in frames:
